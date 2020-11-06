@@ -11,9 +11,9 @@ import time
 
 log = logging.getLogger(__name__)
 
-class LightMQTTServer(Thread):
+class LightUDPServer(Thread):
 
-    def __init__(self, mqttClient: MqttService, registry: LightRegistry):
+    def __init__(self, registry: LightRegistry):
         Thread.__init__(self)
         self.light_registry = registry
         self.mqtt: Client = mqttClient.get_client()
