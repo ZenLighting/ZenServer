@@ -32,4 +32,4 @@ class App(object):
         app.container = container
         device_route.attach_blueprint(app)
 
-        app.run()
+        app.run(host='0.0.0.0')
