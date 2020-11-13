@@ -1,4 +1,4 @@
-from server.hub.registry import LightRegistry
+"""from server.hub.registry import LightRegistry
 from paho.mqtt.client import Client
 from server.mqtt.mqtt_service import MqttService
 from server.hub.server import LightServer
@@ -32,4 +32,4 @@ class App(object):
         app.container = container
         device_route.attach_blueprint(app)
 
-        app.run(host='0.0.0.0')
+        app.run(host='0.0.0.0')"""
