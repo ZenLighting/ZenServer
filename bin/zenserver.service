@@ -3,7 +3,7 @@ Description=Server for the ZenLighting project
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/env php /path/to/server.php
+ExecStart=/usr/bin/env python3 /insert/path/to
 
 [Install]
 WantedBy=multi-user.target

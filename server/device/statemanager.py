@@ -1,4 +1,4 @@
-from server.model.light import NeoPixel, GridSpace
+from server.model.grid import NeoPixel, GridSpace
 import math
 
 class StateManager(object):

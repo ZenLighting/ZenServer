@@ -1,23 +1,10 @@
 from dataclasses import dataclass
-from typing import List, Tuple, Dict
-from dataclasses_json import dataclass_json
+from typing import List, Tuple, Dict, Any
 from json import JSONEncoder
+from server.device.abccommunicator import ABCCommunicator
+from server.model.grid import GridSpace, NeoPixel
+from server.device.statemanager import StateManager
 
-
-@dataclass_json
-@dataclass
-class GridSpace(object):
-    pass
-
-@dataclass_json
-@dataclass
-class NeoPixel(GridSpace):
-    index: Tuple[int, int]
-    r: int
-    g: int
-    b: int
-
-@dataclass_json
 @dataclass
 class LightDevice(object):
     light_id: int
@@ -25,6 +12,8 @@ class LightDevice(object):
     brightness: int
     light_grid: List[List[GridSpace]]
     neopixel_list: Dict[int, NeoPixel]
+    state: Any#: StateManager
+    communicator: Any#: ABCCommunicator
     active: bool = True
 
     

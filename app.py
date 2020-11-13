@@ -5,6 +5,7 @@ device_registry = DeviceRegistry()
 finder = UDPFinder(device_registry)
 
 while True:
+    input("awaiting restart")
     finder.run_find_thread()
 """from server import App
 
