@@ -7,12 +7,15 @@ from threading import Thread
 import logging
 from flask import Flask
 import server.routes.device as device_route
+import server.routes.rooms as room_route
+from server.rooms.roomRegistry import RoomRegistry
 
 class Container(object):
     def __init__(self):
         self.device_registry = DeviceRegistry()
+        self.room_registry = RoomRegistry()
+
         self.udp_finder = UDPFinder(self.device_registry)
-        
         self.inifinity_thread = Thread(target=self.find_infinite_thread)
 
     def find_infinite_thread(self):
@@ -30,7 +33,9 @@ class App(object):
         
         container = Container()
         app.container = container
+        
         device_route.attach_blueprint(app)
+        room_route.attach_blueprint(app)
         
         container.start()
         app.run(host='0.0.0.0')

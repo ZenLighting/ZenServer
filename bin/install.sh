@@ -37,3 +37,6 @@ pip install -r requirements.txt
 
 #place service into correct dir
 sudo cp ./bin/zenserver.service /lib/systemd/system/zenserver.service
+sudo systemctl daemon-reload
+sudo systemctl enable zenserver.service
+sudo systemctl start zenserver.service

@@ -23,11 +23,11 @@ class UDPFinder(object):
         self.timer_running = True
         self.timer = Timer(5, self.end_timeout)
         self.timer.start()
-        print("Timer started")
+        #print("Timer started")
 
     def end_timeout(self):
         self.timer_running = False
-        print("Timer stopped")
+        #print("Timer stopped")
 
     def run_find_thread(self):
         if self.timer is not None and self.timer.is_alive():

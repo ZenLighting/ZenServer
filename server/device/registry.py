@@ -15,7 +15,7 @@ class DeviceRegistry(object):
     def add_light_device(self, device: LightDevice):
         self.device_identifiers.add(device.light_id)
         self.devices[device.light_id] = device
-        print(self.devices)
+        #print(self.devices)
 
     def get_light_device(self, device_identifier):
         return self.devices.get(device_identifier)

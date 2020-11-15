@@ -4,11 +4,15 @@ from typing import List, Tuple, Dict, Any
 
 @dataclass
 class GridSpace(object):
-    pass
+    def __str__(self):
+        return "[--]---:---:---"
 
 @dataclass
 class NeoPixel(GridSpace):
-    index: Tuple[int, int]
+    index: int
     r: int
     g: int
     b: int
+
+    def __str__(self):
+        return "[{:02d}]{:03d}:{:03d}:{:03d}".format(self.index, self.r, self.g, self.b)

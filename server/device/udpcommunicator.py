@@ -21,7 +21,7 @@ class UDPCommunicator(ABCCommunicator):
         message += struct.pack("!B", brightness) # 1 byte &17
         message += struct.pack("!B", len(state)) # 1 byte &18
         for (r, g, b) in state:
-            message += struct.pack("!BBB", r, g, b)
+            message += struct.pack("!BBB", g, r, b)
         return message
 
     def send_frame(self, brightness: int, state: list):
