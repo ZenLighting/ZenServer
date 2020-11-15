@@ -1,6 +1,10 @@
 from server.device.abccommunicator import ABCCommunicator
 import socket
 import struct
+from enum import Enum
+
+class opcodes(Enum):
+    FRAME = 0x00
 
 class UDPCommunicator(ABCCommunicator):
 
@@ -12,8 +16,10 @@ class UDPCommunicator(ABCCommunicator):
         self.socket.bind(("", 0))
 
     def generate_message(self, brightness: int, state: list):
-        message = self.state_manager.get_token() # 16 bytes
-        message += struct.pack("!B", brightness) # 1 byte
+        message = struct.pack("!B", opcodes.FRAME.value) # 1 byte &0
+        message += self.state_manager.get_token() # 16 bytes &1
+        message += struct.pack("!B", brightness) # 1 byte &17
+        message += struct.pack("!B", len(state)) # 1 byte &18
         for (r, g, b) in state:
             message += struct.pack("!BBB", r, g, b)
         return message

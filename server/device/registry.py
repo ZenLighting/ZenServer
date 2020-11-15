@@ -19,3 +19,6 @@ class DeviceRegistry(object):
 
     def get_light_device(self, device_identifier):
         return self.devices.get(device_identifier)
+
+    def list_registered_macs(self):
+        return list(self.device_identifiers)

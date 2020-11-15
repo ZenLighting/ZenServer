@@ -1,26 +1,26 @@
-"""from server.hub.registry import LightRegistry
-from paho.mqtt.client import Client
-from server.mqtt.mqtt_service import MqttService
-from server.hub.server import LightServer
-from flask import Flask
+from server.finders.udpfinder import UDPFinder
+from server.device.registry import DeviceRegistry
+from server.model.light import LightDevice
+from server.device.udpcommunicator import UDPCommunicator
+from server.device.statemanager import StateManager
+from threading import Thread
 import logging
-import time
+from flask import Flask
 import server.routes.device as device_route
-from server.controllers.device_controller import DeviceController
 
 class Container(object):
-    def __init__(self, mqtt_host="localhost"):
+    def __init__(self):
+        self.device_registry = DeviceRegistry()
+        self.udp_finder = UDPFinder(self.device_registry)
         
-        self.mqtt_provider = Client()
-        self.mqtt_service = MqttService(self.mqtt_provider, mqtt_host)
+        self.inifinity_thread = Thread(target=self.find_infinite_thread)
 
-        self.light_registry = LightRegistry()
-        self.light_server = LightServer(self.mqtt_service, self.light_registry)
+    def find_infinite_thread(self):
+        while True:
+            self.udp_finder.run_find_thread()
 
-        # controllers
-        self.light_controller = DeviceController(self.light_server, self.light_registry)
-        
-        self.light_server.start()
+    def start(self):
+        self.inifinity_thread.start()
 
 class App(object):
     def __init__(self, mqtt_host="localhost"):
@@ -28,8 +28,9 @@ class App(object):
         
         app = Flask(__name__)
         
-        container = Container(mqtt_host)
+        container = Container()
         app.container = container
         device_route.attach_blueprint(app)
-
-        app.run(host='0.0.0.0')"""
+        
+        container.start()
+        app.run(host='0.0.0.0')

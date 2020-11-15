@@ -3,7 +3,7 @@ Description=Server for the ZenLighting project
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/env python3 /insert/path/to
+ExecStart=/usr/bin/env /opt/ZenLighting/ZenServer/venv/bin/python3 /opt/ZenLighting/ZenServer/app.py
 
 [Install]
 WantedBy=multi-user.target

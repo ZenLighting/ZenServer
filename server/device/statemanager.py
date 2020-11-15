@@ -7,7 +7,7 @@ class StateManager(object):
         self.grid, self.light_dict = self.parse_grid_string(light_grid)
         self.brightness = 255
         self.light_keys = list(self.light_dict.keys())
-        self.max_index = max(self.light_keys)
+        self.max_index = max(self.light_keys)+1
         self.token = b'0000000000000000'
 
     def set_token(self, token: bytes):
@@ -19,6 +19,7 @@ class StateManager(object):
     def get_state(self):
         values = []
         for i in range(self.max_index):
+            #print(self.light_dict)
             light: NeoPixel = self.light_dict[i]
             value = (light.r, light.g, light.b)
             values.append(value)
@@ -50,6 +51,13 @@ class StateManager(object):
                 pixel.g = g
                 pixel.b = b
 
+    def set_all(self, r, g, b):
+        for neopixel in self.light_dict.values():
+            neopixel: NeoPixel
+            neopixel.r = r
+            neopixel.g = g
+            neopixel.b = b
+
     def set_brightness(self, brighness: int):
         self.brightness = brighness
     
@@ -66,7 +74,7 @@ class StateManager(object):
                 if value != ".":
                     index = int(value)
                     new_grid_space = NeoPixel(index, 0, 0, 0)
-                    neopixel_dict[index] = NeoPixel
+                    neopixel_dict[index] = new_grid_space
                 else:
                     new_grid_space = GridSpace()
                 row.append(new_grid_space)

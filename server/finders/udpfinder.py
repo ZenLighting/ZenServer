@@ -46,7 +46,7 @@ class UDPFinder(object):
         light_id: int (4), num_lights: int (4), token string 16, light_grid str * 
         """
         static_portion = data[:6+1+16]
-        light_grid_string = data[4+4+16:]
+        light_grid_string = data[23:]
         print(light_grid_string)
         light_grid_string = light_grid_string.decode('utf-8')
         light_id, num_lights, token_str = struct.unpack("!6sB16s", static_portion)
@@ -72,10 +72,11 @@ class UDPFinder(object):
                                      255,
                                      light_grid,
                                      neopixel_list,
-                                     new_communicator,
                                      new_state_manager,
+                                     new_communicator,
                                      True)
             self.registry.add_light_device(new_device)
+            new_communicator.start()
 
     @staticmethod
     def parse_grid_string(grid_string: str):
