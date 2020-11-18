@@ -76,7 +76,7 @@ class StateManager(object):
                     new_grid_space = NeoPixel(index, 0, 0, 0)
                     neopixel_dict[index] = new_grid_space
                 else:
-                    new_grid_space = GridSpace()
+                    new_grid_space = 0 #GridSpace()
                 row.append(new_grid_space)
             end_result.append(row)
         return end_result, neopixel_dict

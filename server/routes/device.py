@@ -3,6 +3,7 @@ from flask import Blueprint, Flask, request
 from server.device.registry import DeviceRegistry
 #from server.model.light import DeviceEncoder
 #from server.hub.server import LightServer
+from server.model.light import LightDevice
 import json
 import time
 
@@ -13,8 +14,16 @@ def attach_blueprint(app: Flask):
 
     @device_bp.route("/")
     def list_light_devices():
-
         return json.dumps(registry.list_registered_macs())
+
+    @device_bp.route("/<mac>", methods=['GET'])
+    def get_detailed_info(mac: str):
+        device: LightDevice = registry.get_light_device(mac)
+        return {
+            "grid": device.state.grid,
+            "address": device.communicator.address,
+            "mac": mac
+        }
 
     @device_bp.route("/<mac>/set_color", methods=["POST"])
     def set_device_color(mac):
@@ -27,6 +36,8 @@ def attach_blueprint(app: Flask):
         b = body['b']
         brightness = body['brightness']
         light_device.state.set_all(r, g, b)
-        return "OK"
+        return {
+            "status": "OK"
+        }
 
     app.register_blueprint(device_bp, url_prefix="/devices")
