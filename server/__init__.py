@@ -9,6 +9,7 @@ from flask import Flask
 import server.routes.device as device_route
 import server.routes.rooms as room_route
 from server.rooms.roomRegistry import RoomRegistry
+from flask_cors import CORS
 
 class Container(object):
     def __init__(self):
@@ -30,7 +31,7 @@ class App(object):
         logging.basicConfig(level=logging.DEBUG)
         
         app = Flask(__name__)
-        
+        CORS(app)
         container = Container()
         app.container = container
         
