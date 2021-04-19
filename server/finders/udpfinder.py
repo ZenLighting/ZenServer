@@ -45,11 +45,12 @@ class UDPFinder(object):
         """
         light_id: int (4), num_lights: int (4), token string 16, light_grid str * 
         """
-        static_portion = data[:6+1+16]
+        static_portion = data[:6+1+16+4]
         light_grid_string = data[23:]
         print(light_grid_string)
         light_grid_string = light_grid_string.decode('utf-8')
-        light_id, num_lights, token_str = struct.unpack("!6sB16s", static_portion)
+        light_id, data_port, num_lights, token_str = struct.unpack("!6sIB16s", static_portion)
+        # convert 6 byte mac to string
         light_id = "{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}".format(
             light_id[0],
             light_id[1],
@@ -66,7 +67,7 @@ class UDPFinder(object):
             # create a new light device
             print(light_id, num_lights, token_str)
             new_state_manager = StateManager(light_grid_string)
-            new_communicator = UDPCommunicator(new_state_manager, (address[0], 80))
+            new_communicator = UDPCommunicator(new_state_manager, (address[0], data_port))
             new_device = LightDevice(light_id,
                                      num_lights,
                                      255,
