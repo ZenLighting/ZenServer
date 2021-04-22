@@ -10,6 +10,10 @@ import server.routes.device as device_route
 import server.routes.rooms as room_route
 from server.rooms.roomRegistry import RoomRegistry
 from flask_cors import CORS
+from server.finders.light_tracker import LightTracker
+from server.finders.finder import DeviceFinder
+from server.routes.light import create_light_bp
+from server.utils.jsonencoder import AlchemyEncoder
 
 class Container(object):
     def __init__(self):
@@ -32,21 +36,43 @@ class App(object):
         
         app = Flask(__name__, static_folder="./static", static_url_path="/static")
         CORS(app)
-        container = Container()
-        app.container = container
-        
+        app.json_encoder = AlchemyEncoder
+        #container = Container()
+        #app.container = container
 
-        
-        device_route.attach_blueprint(app)
-        room_route.attach_blueprint(app)
+        light_tracker = LightTracker() # keeps track of lights that are not registered yet
+        udp_finder = DeviceFinder(light_tracker) # gets packets via udp to detect lights
+        udp_finder.start()
 
-        @app.route("/")
+        # routes
+        light_bp = create_light_bp(light_tracker)
+
+        app.register_blueprint(light_bp, url_prefix="/light")
+        
+        """@app.route("/")
+        def list_unlisted_devices():
+            return {
+                "unregistered_devices": list(light_tracker.lights_not_in_database)
+            }
+        
+        @app.route("/register/<uuid>")
+        def register(uuid):
+            light_tracker.register_untracked_light(uuid)
+            
+            return {
+                "status": "ok"
+            }"""
+        
+        #device_route.attach_blueprint(app)
+        #room_route.attach_blueprint(app)
+
+        """@app.route("/")
         def root():
             return render_template('index.html')
         
         @app.route("/<path:path>")
         def root_path(path):
-            return render_template('index.html')
+            return render_template('index.html')"""
 
-        container.start()
+        #container.start()
         app.run(host='0.0.0.0')
