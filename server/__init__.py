@@ -1,20 +1,15 @@
-from server.finders.udpfinder import UDPFinder
-from server.device.registry import DeviceRegistry
-from server.model.light import LightDevice
-from server.device.udpcommunicator import UDPCommunicator
-from server.device.statemanager import StateManager
-from threading import Thread
 import logging
 from flask import Flask, render_template, send_from_directory, send_file
-import server.routes.device as device_route
-import server.routes.rooms as room_route
-from server.rooms.roomRegistry import RoomRegistry
+#import server.routes.device as device_route
+#import server.routes.rooms as room_route
+#rom server.rooms.roomRegistry import RoomRegistry
 from flask_cors import CORS
 from server.mqtt.mqtt_service import MqttService
 import paho.mqtt.client as mqtt
 from server.queues.queue_manager import InputQueueManager
 from server.device.tracker import DeviceTracker
 from server.device.light_device_manager import LightManager
+import server.routes.device as device_route
 import settings
 
 
@@ -53,7 +48,7 @@ class App(object):
         
         #device_route.attach_blueprint(app)
         #room_route.attach_blueprint(app)
-
+        device_route.attach_blueprint(app)
         """@app.route("/")
         def root():
             return render_template('index.html')

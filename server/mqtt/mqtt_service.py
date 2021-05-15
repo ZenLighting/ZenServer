@@ -25,7 +25,7 @@ class MqttService(object):
         log.info(f"Connected to mqtt server with code {str(rc)}")
         
     def on_message(self, client, userdata, message):
-        log.debug(f"{message.topic}, {message.payload}")
+        #log.debug(f"{message.topic}, {message.payload}")
         if message.topic == "device/registry":
             registration_message = json.loads(message.payload)
             self.registration_queue.put(registration_message)

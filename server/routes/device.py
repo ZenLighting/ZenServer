@@ -1,3 +1,4 @@
+import sqlalchemy
 from server.device.tracker import DeviceTracker
 from flask import Blueprint, Flask, request
 import colorsys
@@ -27,9 +28,7 @@ def attach_blueprint(app: Flask):
             light_objects = session.query(LightDevice).all()
         return {
             "status": 200,
-            "data": {
-                light_objects
-            }
+            "data": light_objects
         }
     
     @device_bp.route("/active")
@@ -42,7 +41,7 @@ def attach_blueprint(app: Flask):
         }
         #return json.dumps(registry.list_registered_macs())
 
-    @device_bp.route("/register/<dId>")
+    @device_bp.route("/register/<dId>", methods=["POST"])
     def register_active_device(dId):
         body = request.json
         light_mapping = body.get('light_mapping')
@@ -62,23 +61,28 @@ def attach_blueprint(app: Flask):
 
         with DatabaseSession() as session:
             # check if dId already registered
-            existing_device = session.query(LightDevice)\
-                .filter(LightDevice.device_id==dId).one()
-            if existing_device is not None:
-                return {
-                    "status": 400,
-                    "message": f"light device {dId} is already registered"
-                }
-            
-            active_device = DeviceRegistrationMessage(**active_device)
-            new_device = LightDevice()
-            new_device.device_id = active_device.dId
-            new_device.light_amount = len(active_device.data['state'])
-            new_device.light_mapping = light_mapping
-            new_device.description = description
-            session.add(new_device)
-            session.commit()
-            state_manager.update_from_db()
+            try:
+                existing_device = session.query(LightDevice)\
+                    .filter(LightDevice.device_id==dId).one()
+                if existing_device is not None:
+                    return {
+                        "status": 400,
+                        "message": f"light device {dId} is already registered"
+                    }
+            except Exception as err:
+                print("HERE")
+                active_device = DeviceRegistrationMessage(**active_device)
+                new_device = LightDevice()
+                new_device.device_id = active_device.dId
+                new_device.light_amount = len(active_device.data['state'])
+                new_device.light_mapping = light_mapping
+                new_device.description = description
+                new_device.room = None
+                new_device.room_x = None
+                new_device.room_y = None
+                session.add(new_device)
+                session.commit()
+                state_manager.update_from_db()
         return {
             "status": 200,
             "data": {
@@ -107,7 +111,7 @@ def attach_blueprint(app: Flask):
             "data": lightObject
         }
     
-    @device_bp.route("/<device_id>/set_static")
+    @device_bp.route("/<device_id>/set_static", methods=["POST"])
     def assign_light_color(device_id: str):
         body = request.json
         color_style = body['color_scheme']
@@ -123,6 +127,7 @@ def attach_blueprint(app: Flask):
         elif color_style == "rgb":
             [r, g, b] = color_value
         #TODO: put rgb on light
+        print(state_manager.light_objects)
         state_manager.light_objects.get(device_id).set_all(r, g, b)
         return {
             "status": 200,
@@ -159,4 +164,4 @@ def attach_blueprint(app: Flask):
             "status": "OK"
         }"""
 
-    app.register_blueprint(device_bp, url_prefix="/devices")
+    app.register_blueprint(device_bp, url_prefix="/device")

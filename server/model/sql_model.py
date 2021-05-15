@@ -1,7 +1,9 @@
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String
+from server.model.database import engine
 
 Base = declarative_base()
+
 
 class LightDevice(Base):
     __tablename__ = "light"
@@ -10,12 +12,15 @@ class LightDevice(Base):
     light_amount = Column(Integer)
     description = Column(String)
     light_mapping = Column(String)
-    room = Column(String)
-    room_x = Column(Integer)
-    room_y = Column(Integer)
+    room = Column(String, nullable=True)
+    room_x = Column(Integer, nullable=True)
+    room_y = Column(Integer, nullable=True)
 
 class Room(Base):
     __tablename__ = "room"
 
     id=Column(Integer, primary_key=True)
     room_name = Column(String)
+
+print("CREATED")
+Base.metadata.create_all(engine)
