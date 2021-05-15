@@ -9,7 +9,7 @@ from server.types.messages.device_registration import DeviceRegistrationMessage
 #from server.model.light import LightDevice
 
 from server.model.sql_model import LightDevice
-
+from server.device.light_device_manager import LightManager
 from server.model.database import DatabaseSession
 import json
 import time
@@ -17,6 +17,7 @@ import time
 def attach_blueprint(app: Flask):
     container = app.container
     device_tracker: DeviceTracker = container.tracker
+    state_manager: LightManager = container.light_state_manager
     #registry: DeviceRegistry = container.device_registry
     device_bp = Blueprint("device", __name__)
 
@@ -77,6 +78,7 @@ def attach_blueprint(app: Flask):
             new_device.description = description
             session.add(new_device)
             session.commit()
+            state_manager.update_from_db()
         return {
             "status": 200,
             "data": {
@@ -97,6 +99,9 @@ def attach_blueprint(app: Flask):
             lightObject.room_x = room_x
             lightObject.room_y = room_y
             session.commit()
+
+        state_manager.update_from_db()
+
         return {
             "status": 200,
             "data": lightObject
@@ -118,7 +123,11 @@ def attach_blueprint(app: Flask):
         elif color_style == "rgb":
             [r, g, b] = color_value
         #TODO: put rgb on light
-    
+        state_manager.light_objects.get(device_id).set_all(r, g, b)
+        return {
+            "status": 200,
+            "data": "OK"
+        }
     @device_bp.route("/<device_id>/set_animation")
     def assign_light_animation(device_id):
         return {

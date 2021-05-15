@@ -14,6 +14,7 @@ from server.mqtt.mqtt_service import MqttService
 import paho.mqtt.client as mqtt
 from server.queues.queue_manager import InputQueueManager
 from server.device.tracker import DeviceTracker
+from server.device.light_device_manager import LightManager
 import settings
 
 
@@ -23,7 +24,7 @@ class Container(object):
         self.mqtt_client = mqtt.Client()
         self.mqtt_service = MqttService(self.mqtt_client, self.input_queue_manager, settings.MQTT_HOST)
         self.tracker = DeviceTracker(self.input_queue_manager)
-
+        self.light_state_manager = LightManager(self.mqtt_service)
         #self.mqtt_client = MqttService()
         #self.device_registry = DeviceRegistry()
         #self.room_registry = RoomRegistry()
