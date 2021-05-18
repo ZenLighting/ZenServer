@@ -60,11 +60,12 @@ class LightGridLight(BaseLightGrid):
                     else:
                         real_light = RealLightSpotObject(self.device_id, current_light_index)
                         self.lights_by_index[current_light_index] = real_light
+                        light_row.append(real_light)
                         current_light_index += 1
-                        light_row.append(RealLightSpotObject(self.device_id, current_light_index))
                 self.state.append(light_row)
 
     def set_light_by_index(self, index, r, g, b):
+        print(index)
         light = self.lights_by_index.get(index)
         if light.r != r or light.g != g or light.b != b:
             self.updated_flag = True

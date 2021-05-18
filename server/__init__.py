@@ -10,6 +10,7 @@ from server.queues.queue_manager import InputQueueManager
 from server.device.tracker import DeviceTracker
 from server.device.light_device_manager import LightManager
 import server.routes.device as device_route
+import server.routes.rooms as room_route
 import settings
 
 
@@ -20,12 +21,6 @@ class Container(object):
         self.mqtt_service = MqttService(self.mqtt_client, self.input_queue_manager, settings.MQTT_HOST)
         self.tracker = DeviceTracker(self.input_queue_manager)
         self.light_state_manager = LightManager(self.mqtt_service)
-        #self.mqtt_client = MqttService()
-        #self.device_registry = DeviceRegistry()
-        #self.room_registry = RoomRegistry()
-
-        #self.udp_finder = UDPFinder(self.device_registry)
-        #self.inifinity_thread = Thread(target=self.find_infinite_thread)
 
     def find_infinite_thread(self):
         while True:
@@ -49,6 +44,8 @@ class App(object):
         #device_route.attach_blueprint(app)
         #room_route.attach_blueprint(app)
         device_route.attach_blueprint(app)
+        room_route.attach_blueprint(app)
+        
         """@app.route("/")
         def root():
             return render_template('index.html')

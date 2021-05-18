@@ -14,6 +14,29 @@ from server.device.light_device_manager import LightManager
 from server.model.database import DatabaseSession
 import json
 import time
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
+class MyEncoder(json.JSONEncoder):
+    def default(self, o):
+        return o.__dict__   
+
+class AlchemyEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            # an SQLAlchemy class
+            fields = {}
+            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+                data = obj.__getattribute__(field)
+                try:
+                    json.dumps(data) # this will fail on non-encodable values, like other classes
+                    fields[field] = data
+                except TypeError:
+                    fields[field] = None
+            # a json-encodable dict
+            return fields
+
+        return json.JSONEncoder.default(self, obj)
 
 def attach_blueprint(app: Flask):
     container = app.container
@@ -28,7 +51,7 @@ def attach_blueprint(app: Flask):
             light_objects = session.query(LightDevice).all()
         return {
             "status": 200,
-            "data": light_objects
+            "data": list(map(lambda x: json.dumps(x, cls=AlchemyEncoder), light_objects))
         }
     
     @device_bp.route("/active")
@@ -86,7 +109,7 @@ def attach_blueprint(app: Flask):
         return {
             "status": 200,
             "data": {
-                "new_object": new_device.__dict__
+                "new_object": json.dumps(new_device, cls=MyEncoder)
             }
         }
     
@@ -108,7 +131,7 @@ def attach_blueprint(app: Flask):
 
         return {
             "status": 200,
-            "data": lightObject
+            "data": json.dumps(lightObject, cls=MyEncoder)
         }
     
     @device_bp.route("/<device_id>/set_static", methods=["POST"])
@@ -118,7 +141,7 @@ def attach_blueprint(app: Flask):
         color_value = body['value']
         # convert to rgb
         if color_style == "hsv":
-            (r, g, b) = colorsys.hsv_to_rgb(*color_value)
+            r, g, b = tuple(round(i*255) for i in colorsys.hsv_to_rgb(color_value[0], color_value[1], color_value[2]))
         elif color_style == "hex":
             color_value = color_value.strip("#")
             r = int(color_value[:2], 16)
@@ -127,8 +150,9 @@ def attach_blueprint(app: Flask):
         elif color_style == "rgb":
             [r, g, b] = color_value
         #TODO: put rgb on light
-        print(state_manager.light_objects)
-        state_manager.light_objects.get(device_id).set_all(r, g, b)
+        #print(state_manager.light_objects)
+        print(r, g, b)
+        state_manager.light_objects.get(device_id).set_all(int(r), int(g), int(b))
         return {
             "status": 200,
             "data": "OK"

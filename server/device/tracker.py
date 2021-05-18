@@ -20,6 +20,7 @@ class DeviceTracker(Thread):
                 item = self.consumption_queue.get(timeout=1)
                 # a registration message was recieved
                 cur_time = time.time()
+                #print(item)
                 message_data = DeviceRegistrationMessage(**item)
                 message_data.last_detected = cur_time
                 self.devices_recieved[message_data.dId] = message_data.dict()
