@@ -1,4 +1,4 @@
-from server.finders.udpfinder import UDPFinder
+"""from server.finders.udpfinder import UDPFinder
 from server.device.registry import DeviceRegistry
 from server.model.light import LightDevice
 from server.device.udpcommunicator import UDPCommunicator
@@ -49,4 +49,4 @@ class App(object):
             return render_template('index.html')
 
         container.start()
-        app.run(host='0.0.0.0')
+        app.run(host='0.0.0.0')"""
