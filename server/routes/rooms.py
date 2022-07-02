@@ -8,6 +8,8 @@ from server.rooms.roomRegistry import RoomRegistry
 import json
 import time
 
+"""not valid at the moment, not for version 1"""
+
 class MyEncoder(json.JSONEncoder):
     def default(self, o):
         return o.__dict__    

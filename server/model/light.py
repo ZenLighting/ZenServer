@@ -1,24 +1,18 @@
 from dataclasses import dataclass
 from typing import List, Tuple, Dict, Any
-from json import JSONEncoder
-from server.device.abccommunicator import ABCCommunicator
-from server.model.grid import GridSpace, NeoPixel
-from server.device.statemanager import StateManager
+from server.model.grid import LightGrid
+from server.model.sqlite_models import LightDeviceModel
+from server.device.device_grid_writer import DeviceGridWriter
+from datetime import datetime
 
-@dataclass
-class LightDevice(object):
-    light_id: int
-    num_leds: int
-    brightness: int
-    light_grid: List[List[GridSpace]]
-    neopixel_list: Dict[int, NeoPixel]
-    state: Any#: StateManager
-    communicator: Any#: ABCCommunicator
-    active: bool = True
 
-    
+class LightDeviceWrapper(object):
+    model_object: LightDeviceModel
+    grid_object: LightGrid
+    deviceStateCom: DeviceGridWriter
+    heartbeat: datetime = None
 
-class DeviceEncoder(JSONEncoder):
-    def default(self, o):
-        return o.__dict__
-
+    def __init__(self, model):
+        self.model_object = model
+        self.grid_object = LightGrid(self.model_object.grid_string)
+        self.deviceStateCom = DeviceGridWriter(self.model_object, self.grid_object)

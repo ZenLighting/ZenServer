@@ -2,6 +2,9 @@
 
 This is intended to be the server for light control, acting as a hub for all lights on the local network
 
+## Versions
+- 1.0.0 -> Can statically color lights, have a standard communication protocol defined, can recieve device broadcasts
+
 ## Light Protocols
 ### Discovery
 Lights will broadcast on the localnetwork at port 1260 a json of format

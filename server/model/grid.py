@@ -3,6 +3,8 @@ from inspect import Parameter
 from typing import List, Tuple, Dict, Any, Optional
 #from server.device.statemanager import StateManager
 import pydantic
+from abc import ABC, abstractmethod, abstractproperty
+from server.design_patterns.observable import Observable, Observer
 
 """@dataclass
 class GridSpace(object):
@@ -51,11 +53,15 @@ class PixelGridSpace(GridSpace):
     def __str__(self):
         return f"({str(self.r).zfill(3)},{str(self.g).zfill(3)},{str(self.b).zfill(3)})"
 
-class LightGrid(object):
+class LightGridEvents:
+    GRID_CHANGE="grid_change"
+
+class LightGrid(Observable):
     grid_object: List[List[GridSpace]]
-    pixels_by_index = List[PixelGridSpace]
+    pixels_by_index: List[PixelGridSpace]
 
     def __init__(self, light_grid_string: str): # rooms can be defined by grid strings of only -
+        Observable.__init__(self)
         self._grid_setup_string = light_grid_string
         self.grid_object, self.pixels_by_index = self.parse_light_grid_string(light_grid_string)
         for pixel in self.pixels_by_index:
@@ -143,8 +149,19 @@ class LightGrid(object):
     def set_index_color(self, row, col ,r ,g ,b):
         pixel = self.grid_object[row][col]
         if isinstance(pixel, PixelGridSpace):
-            return pixel.set_color(r, g, b)
+            if pixel.r != r or pixel.g != g or pixel.b != b:
+                retval = pixel.set_color(r, g, b)
+                self.trigger_event(LightGridEvents.GRID_CHANGE)
+                return retval
         return False
+
+    def set_grid_color(self, r, g, b):
+        for pixel in self.pixels_by_index:
+            pixel.r = r
+            pixel.g = g
+            pixel.b = b
+        self.trigger_event(LightGridEvents.GRID_CHANGE)
+        return True
 
     def __str__(self):
         stringrep = ""
@@ -153,3 +170,12 @@ class LightGrid(object):
                 stringrep+=str(col)
             stringrep+="\n"
         return stringrep
+
+class LightGridObserver(object):
+    @abstractproperty
+    def lightGridObserved(self) -> LightGrid:
+        pass
+
+    @abstractmethod
+    def on_light_grid_update(self, grid: LightGrid):
+        pass
