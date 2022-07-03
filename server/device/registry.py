@@ -10,6 +10,24 @@ class DeviceRegistry(object):
         self.database_session_maker = session_maker
         self.device_identifiers = set()
         #self.devices = {}
+        ## =========== deleteme
+        session: Session = session_maker()
+        newLight = session.query(LightDeviceORM).filter(LightDeviceORM.id == 2).one()
+        newLight.grid_string = """----xxxxxx---
+--xx-----xxx-
+-x---------x-
+-x---------x-
+x-----------x
+x-----------x
+x-----------x
+x-----------x
+x-----------x
+-x---------x-
+-x---------x-
+--xx-----xx--
+----xxxxx----"""
+        session.commit()
+        session.close()
         self.devices: List[LightDeviceWrapper] = self.generate_device_from_database(session_maker)
 
     def generate_device_from_database(self, session_maker):

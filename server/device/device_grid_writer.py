@@ -35,9 +35,9 @@ class DeviceGridWriter(object):
         self.grid.attach(LightGridEvents.GRID_CHANGE, myObserver)
     
     def add_change_to_queue(self):
-        message_bytes = struct.pack("!I", 0)
+        message_bytes = struct.pack("!BB", 0, 0)
         for pixel in self.grid.pixels_by_index:
-            message_bytes+=struct.pack("!BBB", pixel.r, pixel.g, pixel.b)
+            message_bytes+=struct.pack("!BBB", pixel.g, pixel.r, pixel.b)
         
         if self.message_queue.full():
             self.message_queue.get() # pop off front
