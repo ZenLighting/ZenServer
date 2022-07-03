@@ -16,6 +16,11 @@ class LightDeviceORM(Base):
     # number of LEDS can be determined by reading x's newlines represent rows
     last_address = Column(String) # the last address we have seen over network
 
+class PartialDevice(pydantic.BaseModel):
+    name: str
+    last_address: str
+
+
 class LightDeviceModel(pydantic.BaseModel):
     id: Optional[int]
     name: str
@@ -25,3 +30,31 @@ class LightDeviceModel(pydantic.BaseModel):
     class Config:
         orm_mode = True
         arbitrary_types_allowed=True
+
+    @classmethod
+    def create_from_partial(cls, partial: PartialDevice, grid_string: str):
+        return LightDeviceModel(name=partial.name, grid_string=grid_string, last_address=partial.last_address)
+
+"""class LightRoomORM(Base):
+    __tablename__ = "room"
+
+    name = Column(String, primary_key=True)
+
+class LightRoomModel(pydantic.BaseModel):
+    name: str
+
+    class Config:
+        orm_mode = True
+
+class LightRoomDeviceORM(Base):
+    __tablename__ = "light_room_device"
+
+    room=Column(String, ForeignKey("room.name"), primary_key=True)
+    device=Column(Integer, ForeignKey("lightdevice.id"), primary_key=True)
+
+class LightRoomDeviceModel(pydantic.BaseModel):
+    room: String
+    device: Integer
+
+    class Config:
+        orm_mode = True"""

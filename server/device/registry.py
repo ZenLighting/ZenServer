@@ -1,8 +1,9 @@
 from typing import List
 #from server.model.light import LightDevice
-from server.model.sqlite_models import LightDeviceORM, LightDeviceModel
+from server.model.sqlite_models import LightDeviceORM, LightDeviceModel, PartialDevice
 from server.model.light import LightDeviceWrapper
 from sqlalchemy.orm.session import sessionmaker, Session
+from typing import Dict
 
 class DeviceRegistry(object):
 
@@ -13,6 +14,7 @@ class DeviceRegistry(object):
         ## =========== deleteme
 
         self.devices: List[LightDeviceWrapper] = self.generate_device_from_database(session_maker)
+        self.undefinedDevices: Dict[str, PartialDevice] = {}
 
     def generate_device_from_database(self, session_maker):
         session: Session = session_maker()
@@ -30,6 +32,14 @@ class DeviceRegistry(object):
             return True
         else:
             return False
+
+    def check_partial_exists(self, device_name: str):
+        if self.undefinedDevices.get(device_name) is None:
+            return False
+        return True
+
+    def add_partial_device(self, device: PartialDevice):
+        self.undefinedDevices[device.name] = device
 
     def add_light_device(self, device: LightDeviceModel):
         wrapped = LightDeviceWrapper(device)

@@ -5,6 +5,7 @@ from server.device.registry import DeviceRegistry
 import time
 from pydantic import BaseModel
 from server.model.light import LightDeviceWrapper
+from server.model.sqlite_models import PartialDevice
 
 class StripDescription(BaseModel):
     length: int
@@ -44,8 +45,10 @@ class DeviceHeartbeatDetector(object):
             device = self.device_registry.get_light_device(None, name=dataParsed.name)
             if device is None:
                 # the device is not in the database
+                #if not self.device_registry.check_partial_exists()
                 print("Unknown Device Heartbeat", data)
-                pass
+                partial_device = PartialDevice(name=dataParsed.name, last_address=address[0])
+                self.device_registry.add_partial_device(partial_device)
             else:
                 device: LightDeviceWrapper
                 device.model_object.last_address = address[0]

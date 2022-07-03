@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, request
+from flask import Blueprint, Flask, Response, request
 #from server.controllers.device_controller import DeviceController 
 from server.device.registry import DeviceRegistry
 #from server.model.light import DeviceEncoder
@@ -10,6 +10,7 @@ import json
 import time
 from sqlalchemy.orm import Session
 import colorsys
+from server.model.requests.devices import CreateDeviceFromPartialPOST
 
 
 def create_blueprint(registry: DeviceRegistry, session_maker: Session):
@@ -19,7 +20,8 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
     def list_light_devices():
         as_json = list(map(lambda x: x.model_object.json(), registry.devices))
         return {
-            "devices": as_json
+            "devices": as_json,
+            "partials": list(registry.undefinedDevices.values())
         }
 
     @device_bp.route("/<id>", methods=['GET'])
@@ -63,5 +65,17 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
             pass
         registry.add_light_device(model)
         return model.json()
+
+    @device_bp.route("/partial", methods=["POST"])
+    def create_partial():
+        body = request.json
+        partial_post_request = CreateDeviceFromPartialPOST.parse_obj(body)
+
+        if registry.check_partial_exists(partial_post_request.name) is not None:
+            model = LightDeviceModel.create_from_partial(registry.undefinedDevices[partial_post_request.name], partial_post_request.grid)
+            registry.add_light_device(model)
+            return model.json()
+        else:
+            return Response(status=404)
 
     return device_bp
