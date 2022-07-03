@@ -63,7 +63,7 @@ class LightGrid(Observable):
     def __init__(self, light_grid_string: str): # rooms can be defined by grid strings of only -
         Observable.__init__(self)
         self._grid_setup_string = light_grid_string
-        self.grid_object, self.pixels_by_index = self.parse_light_grid_string(light_grid_string)
+        self.grid_object, self.pixels_by_index = self.parse_grid_parent(light_grid_string)
         for pixel in self.pixels_by_index:
             pixel.light_pointer = self
 
@@ -118,6 +118,13 @@ class LightGrid(Observable):
         return len(self.pixels_by_index)
 
     @staticmethod
+    def parse_grid_parent(light_grid_string: str) -> Tuple[List[List[GridSpace]], List[PixelGridSpace]]:
+        if "-" in light_grid_string:
+            return LightGrid.parse_light_grid_string(light_grid_string)
+        else:
+            return LightGrid.parse_light_grid_string_indexed(light_grid_string)
+
+    @staticmethod
     def parse_light_grid_string(light_grid_string: str) -> Tuple[List[List[GridSpace]], List[PixelGridSpace]]:
         light_grid_string = light_grid_string.rstrip("\n")
         light_grid_rows = light_grid_string.split('\n')
@@ -144,6 +151,46 @@ class LightGrid(Observable):
                     pixels_list.append(new_pixel_gridspace)
             grid_object.append(row_array)
         return grid_object, pixels_list
+
+    @staticmethod
+    def parse_light_grid_string_indexed(light_grid_string: str) -> Tuple[List[List[GridSpace]], List[PixelGridSpace]]:
+        """
+        grids are defined as 000 000 000 000 000 001 000\n
+        """
+        light_grid_string = light_grid_string.rstrip("\n")
+        light_grid_rows = light_grid_string.split('\n')
+        
+        grid_object: List[List[GridSpace]] = []
+        pixels_list: List[PixelGridSpace] = []
+        pixel_map = {}
+
+        empty_grid_space = GridSpace() # flyweight
+
+        for row in light_grid_rows:
+            row_array = list()
+            row = row.strip("\n")
+            lights = row.split(" ")
+            for light in lights:
+                if int(light) <= 0:
+                    row_array.append(empty_grid_space)
+                    continue
+                else:
+                    new_pixel_gridspace = PixelGridSpace(
+                        index = int(light),
+                        r = 0,
+                        g = 0,
+                        b = 0
+                    )
+                    pixel_map[int(light)] = new_pixel_gridspace
+                    row_array.append(new_pixel_gridspace)
+            grid_object.append(row_array)
+        
+        for i in range(1, max(pixel_map.keys())+1):
+            pixels_list.append(pixel_map[i])
+        
+        return grid_object, pixels_list
+
+
 
     
     def set_index_color(self, row, col ,r ,g ,b):
