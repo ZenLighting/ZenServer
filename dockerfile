@@ -1,12 +1,10 @@
-FROM python:3.8.6-alpine3.12
+FROM python:3.10.5-buster
 
 COPY . /app
 
 WORKDIR /app
 RUN ls
 RUN pip install -r requirements.txt
-RUN pip install .
+RUN pip install -e .
 
-EXPOSE 5000
-
-CMD python /app/app.py
+CMD python /app/bin/run_app.py -c /config/zenserver.json -d

@@ -9,6 +9,8 @@ from server.model.light import LightDeviceWrapper
 import json
 import time
 from sqlalchemy.orm import Session
+import colorsys
+
 
 def create_blueprint(registry: DeviceRegistry, session_maker: Session):
     device_bp = Blueprint("device", __name__)
@@ -36,10 +38,17 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
         body = request.json
         id = int(id)
         light_device= registry.get_light_device(id)
-        r = int(body['r'])
-        g = int(body['g'])
-        b = int(body['b'])
-        light_device.grid_object.set_grid_color(r, g, b)
+        color_protocol = body['color-protocol']
+        if color_protocol == "hsv":
+            h = float(body['h'])
+            s = float(body['s'])
+            v = float(body['v'])
+            r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        else:
+            r = int(body['r'])
+            g = int(body['g'])
+            b = int(body['b'])
+        light_device.grid_object.set_grid_color(int(r), int(g), int(b))
         return {
             "status": "OK"
         }
@@ -48,6 +57,10 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
     def create_device():
         body = request.json
         model = LightDeviceModel.parse_obj(body)
+        # check if model already exists
+        if registry.get_light_device(None, name=model.name) is not None:
+            # update
+            pass
         registry.add_light_device(model)
         return model.json()
 
