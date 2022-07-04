@@ -18,8 +18,8 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
 
     @device_bp.route("/")
     def list_light_devices():
-        as_json = list(map(lambda x: x.model_object.json(), registry.devices))
-        partials_as_json = list(map(lambda x: x.json(), registry.undefinedDevices.values()))
+        as_json = list(map(lambda x: x.model_object.dict(), registry.devices))
+        partials_as_json = list(map(lambda x: x.dict(), registry.undefinedDevices.values()))
         return {
             "devices": as_json,
             "partials": partials_as_json
@@ -31,7 +31,7 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
         return {
             "grid": str(device.grid_object),
             "address": device.model_object.last_address,
-            "object": device.model_object.json()
+            "object": device.model_object.dict()
         }
 
     @device_bp.route("/<id>/set_color", methods=["POST"])
@@ -65,7 +65,7 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
             # update
             pass
         registry.add_light_device(model)
-        return model.json()
+        return model.dict()
 
     @device_bp.route("/partial", methods=["POST"])
     def create_partial():
@@ -75,7 +75,7 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
         if registry.check_partial_exists(partial_post_request.name) is not None:
             model = LightDeviceModel.create_from_partial(registry.undefinedDevices[partial_post_request.name], partial_post_request.grid)
             registry.add_light_device(model)
-            return model.json()
+            return model.dict()
         else:
             return Response(status=404)
 
