@@ -35,6 +35,8 @@ class LightDeviceModel(pydantic.BaseModel):
     def create_from_partial(cls, partial: PartialDevice, grid_string: str):
         return LightDeviceModel(name=partial.name, grid_string=grid_string, last_address=partial.last_address)
 
+
+
 """class LightRoomORM(Base):
     __tablename__ = "room"
 
