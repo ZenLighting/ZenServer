@@ -1,32 +1,89 @@
 from typing import List
 #from server.model.light import LightDevice
-from server.model.sqlite_models import LightDeviceORM, LightDeviceModel, PartialDevice
+from server.model.sqlite_models import LightDeviceORM, LightDeviceModel, PartialDevice, RoomLightAssociation
 from server.model.light import LightDeviceWrapper
 from sqlalchemy.orm.session import sessionmaker, Session
 from typing import Dict
-from server.model.room import RoomWrapper, RoomModel
+from server.model.room import LightPositionDescriptor, RoomWrapper#, RoomModel
+from server.model.sqlite_models import RoomModel, RoomOrm
+from server.device.registry import DeviceRegistry
 
 class RoomRegistry(object):
-    def __init__(self, session_maker: sessionmaker):
+    def __init__(self, session_maker: sessionmaker, light_registry: DeviceRegistry):
         self.database_session_maker = session_maker
+        self.device_registry = light_registry
         #self.devices = {}
         ## =========== deleteme
 
-        self.rooms: List[RoomWrapper] = self.generate_device_from_database(session_maker)
-        self.undefinedDevices: Dict[str, PartialDevice] = {}
+        self.rooms: List[RoomWrapper] = self.generate_rooms_from_database(session_maker)
 
-    def generate_device_from_database(self, session_maker):
+    def generate_rooms_from_database(self, session_maker):
         session: Session = session_maker()
-        light_devices = session.query(LightDeviceORM).all()
-        light_wrappers = []
-        for device in light_devices:
-            as_model = LightDeviceModel.from_orm(device)
-            wrapped = LightDeviceWrapper(as_model)
-            light_wrappers.append(wrapped)
+        room_orms: List[RoomOrm] = session.query(RoomOrm).all()
+        room_wrappers = []
+        for room in room_orms:
+            as_model = RoomModel.from_orm(room)
+            print(room.lights)
+            light_wrappers_with_position = []
+            for light_orm_assoc in room.lights:
+                light_wrapper = self.device_registry.get_light_device(light_orm_assoc.light.id)
+                light_wrappers_with_position.append(LightPositionDescriptor(x=light_orm_assoc.x, y=light_orm_assoc.y, light=light_wrapper))
+            new_wrapper = RoomWrapper(as_model, light_wrappers_with_position)
+            room_wrappers.append(new_wrapper)
+            #wrapped = RoomWrapper(as_model)
+            #light_wrappers.append(wrapped)
         session.close()
-        return light_wrappers
+        return room_wrappers
 
-    def check_device_exists(self, device_identifier):
+    def add_room(self, room_model: RoomModel):
+        wrapped = RoomWrapper(room_model, []) # start with no lights in room
+        session: Session = self.database_session_maker()
+        new_sql_room = RoomOrm()
+        new_sql_room.name = room_model.name
+        session.add(new_sql_room)
+        session.commit()
+        self.rooms.append(wrapped)
+        session.close()
+        return wrapped
+
+    def remove_room(self, room_model: RoomModel):
+        # remove from database
+        session: Session = self.database_session_maker()
+        room = session.query(RoomOrm).filter(RoomOrm.name==room_model.name).one()
+        session.delete(room)
+        session.commit()
+        # remove from the array
+        for i, room in enumerate(self.rooms):
+            if room.model.name == room_model.name:
+                self.rooms.pop(i)
+                break
+        session.close()
+    
+    def add_light_to_room(self, light: LightDeviceModel, room: RoomModel, x: int, y: int):
+        # add light to database
+        session: Session = self.database_session_maker()
+        light = session.query(LightDeviceORM).filter(LightDeviceORM.id == light.id).one()
+        room = session.query(RoomOrm).filter(RoomOrm.name == room.name).one()
+        association = RoomLightAssociation()
+        association.x = x
+        association.y = y
+        association.room = room
+        association.light = light
+        room.lights.append(association)
+        light.rooms.append(association)
+        session.add(association)
+        session.commit()
+
+    def get_room(self, room_name: str):
+        for room in self.rooms:
+            if room.model.name == room_name:
+                return room
+        raise(Exception("Room not found"))
+
+
+
+
+    """def check_device_exists(self, device_identifier):
         if self.get_light_device(device_identifier) is not None:
             return True
         else:
@@ -61,7 +118,7 @@ class RoomRegistry(object):
             else:
                 if deviceWrapper.model_object.id == device_identifier:
                     return deviceWrapper
-        return None
+        return None"""
 
     """def list_registered_macs(self):
         return list(self.device_identifiers)"""

@@ -185,8 +185,9 @@ class LightGrid(Observable):
                     row_array.append(new_pixel_gridspace)
             grid_object.append(row_array)
         
-        for i in range(1, max(pixel_map.keys())+1):
-            pixels_list.append(pixel_map[i])
+        if len(pixel_map.keys()) > 0:
+            for i in range(1, max(pixel_map.keys())+1):
+                pixels_list.append(pixel_map[i])
         
         return grid_object, pixels_list
 
