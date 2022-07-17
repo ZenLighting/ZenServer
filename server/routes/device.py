@@ -18,7 +18,7 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
 
     @device_bp.route("/")
     def list_light_devices():
-        as_json = list(map(lambda x: x.model_object.dict(), registry.devices))
+        as_json = list(map(lambda x: x.model_object.dict(exclude={"rooms": True}), registry.devices))
         partials_as_json = list(map(lambda x: x.dict(), registry.undefinedDevices.values()))
         return {
             "devices": as_json,
