@@ -31,7 +31,7 @@ def create_blueprint(registry: DeviceRegistry, session_maker: Session):
         return {
             "grid": str(device.grid_object),
             "address": device.model_object.last_address,
-            "object": device.model_object.dict()
+            "object": device.model_object.dict(exclude={"rooms": True})
         }
 
     @device_bp.route("/<id>/set_color", methods=["POST"])
