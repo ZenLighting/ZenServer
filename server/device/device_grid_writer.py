@@ -28,7 +28,7 @@ class DeviceGridWriter(object):
         super_self = self
         class DeviceGridStateChange(Observer):
             def trigger(self, event, observable):
-                print(event, observable)
+                #print(event, observable)
                 super_self.add_change_to_queue()
 
         myObserver = DeviceGridStateChange()
@@ -50,7 +50,7 @@ class DeviceGridWriter(object):
             try:
                 message = self.message_queue.get(timeout=1)
                 if self.model.last_address is not None:
-                    print("sent to light", message)
+                    #print("sent to light", message)
                     self.socket.sendto(message, (self.model.last_address, 1261))
                 time.sleep(1/30)
             except Empty:

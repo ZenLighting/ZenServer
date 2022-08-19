@@ -13,16 +13,20 @@ class FirelightApplicationFromVideo(LightApplicationTemplate):
         self.fire_video: cv2.VideoCapture = cv2.VideoCapture(self.firelight_mp4)
 
     def tick(self):
-        print("HERE")
+        #print("HERE")
         ret, frame = self.fire_video.read()
-        frame: np.ndarray
-        frame = cv2.resize(frame, [self.grid.grid_x, self.grid.grid_y])
-        for y, row in enumerate(frame):
-            for x, col in enumerate(row):
-                self.grid.set_index_color(y, x, col[0], col[1], col[2])
-        time.sleep(1/30)
-        if not self.fire_video.isOpened():
-            self.fire_video = cv2.VideoCapture(self.firelight_mp4)
+
+        if ret:
+            frame: np.ndarray
+            #print(frame.shape)
+            frame = cv2.resize(frame, [self.grid.grid_x, self.grid.grid_y])
+            for y, row in enumerate(frame):
+                for x, col in enumerate(row):
+                    self.grid.set_index_color(y, x, col[2], col[0], col[1])
+            time.sleep(1/30)
+        else:
+            print("Looping")
+            self.fire_video.set(cv2.CAP_PROP_POS_FRAMES, 0)
         #cv2.imshow("frame", frame)
 
 class FirelightApplicationFactory(LightApplicationBuilder):

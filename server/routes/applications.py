@@ -11,7 +11,7 @@ def build_application_route(
     rooms: RoomRegistry,
     lights: DeviceRegistry):
 
-    application_blueprint = Blueprint("device", __name__)
+    application_blueprint = Blueprint("application", __name__)
 
     @application_blueprint.route("/", methods=["GET"])
     def list_applications():
@@ -22,8 +22,8 @@ def build_application_route(
     @application_blueprint.route("/<application_name>/start", methods=["POST"])
     def start_application(application_name: str):
         body = request.json
-        grid_type = body.grid_type
-        room_or_light_id = body.grid_id
+        grid_type = body['grid_type']
+        room_or_light_id = body['grid_id']
         if grid_type == "room":
             room_wrapper = rooms.get_room(room_or_light_id)
             grid = room_wrapper.grid

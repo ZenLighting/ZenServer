@@ -6,7 +6,7 @@ class ApplicationLibrary(object):
 
     def __init__(self):
         self.applications = {
-            "firelight_mp4": FirelightApplicationFactory("/mnt/c/Users/gfvan/Downloads/firelight.mp4")
+            "firelight_mp4": FirelightApplicationFactory("/config/fire.mp4")
         }
     
     def get_application(self, application_id: str):
