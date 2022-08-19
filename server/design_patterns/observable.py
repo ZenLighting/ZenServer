@@ -24,3 +24,20 @@ class Observable(object):
                 observer.trigger(event, self)
         else:
             print("Observable tried to trigger event with no observers")
+
+class RevisedObserver(object):
+    def trigger(self, observable, event, data):
+        pass
+
+class RevisedObservable(object):
+
+    def __init__(self):
+        self.observers: List[RevisedObserver] = []
+    
+    def attach(self, observer: RevisedObserver):
+        self.observers.append(observer)
+    
+    def emit(self, event, data):
+        for i in self.observers:
+            i.trigger(self, event, data)
+
