@@ -5,6 +5,8 @@ from server.device.room_registry import RoomRegistry
 
 from flask import Blueprint, request
 
+from server.model.requests.application import StartApplicationRequest
+
 def build_application_route(
     lib: ApplicationLibrary,
     manager: LightApplicationManager,
@@ -19,19 +21,33 @@ def build_application_route(
             "applications": list(lib.applications.keys())
         }
 
+    @application_blueprint.route("/<app_id>/details")
+    def get_application_details(app_id):
+        application = lib.applications.get(int(app_id))
+        try:
+            app_repr = application.json()
+        except Exception as err:
+            app_repr = {
+                "message": "cant get representation of the application"
+            }
+        
+        return {
+            app_id: app_repr
+        }
+
     @application_blueprint.route("/<application_name>/start", methods=["POST"])
     def start_application(application_name: str):
-        body = request.json
+        body = StartApplicationRequest.parse_obj(request.json)
         grid_type = body.grid_type
         room_or_light_id = body.grid_id
         if grid_type == "room":
             room_wrapper = rooms.get_room(room_or_light_id)
             grid = room_wrapper.grid
-            application = manager.start_application(application_name, grid)
+            application = manager.start_application(application_name, body.application_args, grid, body.schedule)
         else:
             light_wrapper = lights.get_light_device(None, name=room_or_light_id)
             grid = light_wrapper.grid_object
-            application = manager.start_application(application_name, grid)
+            application = manager.start_application(application_name, body.application_args, grid, body.schedule)
         
         return {
             "application_class": application_name,

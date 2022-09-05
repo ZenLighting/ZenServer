@@ -1,8 +1,10 @@
+from datetime import datetime
+from server.applications.application.scheduled_light_application import ScheduledLightApplicationWrapper
 from server.applications.application_library import ApplicationLibrary
-from server.applications.light_application import LightApplicationEvents, LightApplicationTemplate
+from server.applications.application.light_application import LightApplicationEvents, LightApplicationTemplate
 from server.model.grid import LightGrid
 from server.design_patterns.observable import Observer, RevisedObserver
-from typing import Dict
+from typing import Any, Dict
 
 class LightApplicationManager(RevisedObserver):
 
@@ -14,10 +16,18 @@ class LightApplicationManager(RevisedObserver):
         if event == LightApplicationEvents.FINISHED:
             self._running_applications.pop(id(observable))
     
-    def start_application(self, application_name, light_grid: LightGrid):
+    def start_application(
+        self,
+        application_name,
+        args: Dict[str, Any],
+        light_grid: LightGrid,
+        schedule: datetime = None):
+
         application_factory = self.library.get_application(application_name)
         if application_factory is not None:
-            new_application = application_factory(light_grid)
+            new_application = application_factory(light_grid, args)
+            if schedule is not None:
+                new_application = ScheduledLightApplicationWrapper(schedule, new_application)
             self._running_applications[id(new_application)] = new_application
             new_application.attach(self)
             new_application.start()

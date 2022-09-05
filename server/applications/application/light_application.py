@@ -60,7 +60,3 @@ class LightApplicationTemplate(Thread, RevisedObservable):
     def clean(self):
         pass
 
-class LightApplicationBuilder(object):
-    def __call__(self, grid_object: LightGrid) -> LightApplicationTemplate:
-        raise(NotImplementedError())
-

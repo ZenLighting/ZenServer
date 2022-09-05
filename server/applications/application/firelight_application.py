@@ -1,5 +1,6 @@
 import time
-from server.applications.light_application import LightApplicationBuilder, LightApplicationTemplate
+from server.applications.application.light_application import LightApplicationTemplate
+from server.applications.builders.basebuilder import LightApplicationBuilder
 from server.model.grid import LightGrid
 import cv2
 import numpy as np
@@ -30,7 +31,7 @@ class FirelightApplicationFactory(LightApplicationBuilder):
     def __init__(self, fire_mp4_path: str):
         self.fire_mp4_path = fire_mp4_path
 
-    def __call__(self, grid_object: LightGrid) -> FirelightApplicationFromVideo:
+    def __call__(self, grid_object: LightGrid, args) -> FirelightApplicationFromVideo:
         new_firelight_application = FirelightApplicationFromVideo(self.fire_mp4_path, grid_object)
         return new_firelight_application
 
