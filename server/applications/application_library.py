@@ -1,7 +1,7 @@
 import importlib.util
 import sys
 from server.applications.application.firelight_application import FirelightApplicationFactory
-from server.applications.application.sunrise_application import SunriseApplicationBuilder
+from server.applications.application.sunrise_application import SunriseApplicationFactory
 
 class ApplicationLibrary(object):
 
@@ -10,7 +10,7 @@ class ApplicationLibrary(object):
 
         self.applications = {
             "firelight_mp4": FirelightApplicationFactory("/mnt/c/Users/gfvan/Downloads/firelight.mp4"),
-            "sunrise": SunriseApplicationBuilder()
+            "sunrise": SunriseApplicationFactory()
         }
     
     def get_application(self, application_id: str):

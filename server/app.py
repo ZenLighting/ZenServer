@@ -17,7 +17,7 @@ from server.applications.application_library import ApplicationLibrary
 class ZenServerConfig(pydantic.BaseModel):
     host: str = "0.0.0.0"
     port: int = 80
-    sqlite_uri :str = "sqlite:////home/gfvandehei/.zenserver/data.db"
+    sqlite_uri :str = "sqlite:///data.db"
 
 class ZenServerApp(object):
 

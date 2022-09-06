@@ -13,7 +13,7 @@ def build_application_route(
     rooms: RoomRegistry,
     lights: DeviceRegistry):
 
-    application_blueprint = Blueprint("device", __name__)
+    application_blueprint = Blueprint("application", __name__)
 
     @application_blueprint.route("/", methods=["GET"])
     def list_applications():
