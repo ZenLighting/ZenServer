@@ -2,8 +2,8 @@ from server.applications.application_library import ApplicationLibrary
 from server.applications.light_application_manager import LightApplicationManager
 from server.device.registry import DeviceRegistry
 from server.device.room_registry import RoomRegistry
-
-from flask import Blueprint, request
+import pydantic
+from flask import Blueprint, request, Response
 
 from server.model.requests.application import StartApplicationRequest
 
@@ -19,6 +19,16 @@ def build_application_route(
     def list_applications():
         return {
             "applications": list(lib.applications.keys())
+        }
+
+    @application_blueprint.route("/running", methods=["GET"])
+    def get_running_application_ids():
+        running_applications = []
+        for ident, application in manager._running_applications.items():
+            running_applications.append(application.json())
+        
+        return {
+            "running": running_applications
         }
 
     @application_blueprint.route("/<app_id>/details")
@@ -38,21 +48,26 @@ def build_application_route(
     @application_blueprint.route("/<application_name>/start", methods=["POST"])
     def start_application(application_name: str):
         body = request.json
+        body = StartApplicationRequest.parse_obj(body)
         grid_type = body.grid_type
         room_or_light_id = body.grid_id
-        if grid_type == "room":
-            room_wrapper = rooms.get_room(room_or_light_id)
-            grid = room_wrapper.grid
-            application = manager.start_application(application_name, body.application_args, grid, body.schedule)
-        else:
-            light_wrapper = lights.get_light_device(None, name=room_or_light_id)
-            grid = light_wrapper.grid_object
-            application = manager.start_application(application_name, body.application_args, grid, body.schedule)
-        
-        return {
-            "application_class": application_name,
-            "instance_id": id(application)
-        }
+        print(body.application_args)
+        try:
+            if grid_type == "room":
+                room_wrapper = rooms.get_room(room_or_light_id)
+                grid = room_wrapper.grid
+                application = manager.start_application(application_name, body.application_args, grid, body.schedule)
+            else:
+                light_wrapper = lights.get_light_device(None, name=room_or_light_id)
+                grid = light_wrapper.grid_object
+                application = manager.start_application(application_name, body.application_args, grid, body.schedule)
+            
+            return {
+                "application_class": application_name,
+                "instance_id": id(application)
+            }
+        except pydantic.error_wrappers.ValidationError as err:
+            return Response(err.json(), 404)
     
     @application_blueprint.route("/<application_id>/stop", methods=["POST"])
     def stop_application(application_id: str):

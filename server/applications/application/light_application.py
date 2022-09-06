@@ -34,6 +34,7 @@ class LightApplicationTemplate(Thread, RevisedObservable):
 
     def run(self):
         while not self._stop:
+            #print(self._stop, self._pause)
             if self._pause:
                 time.sleep(1)
                 continue

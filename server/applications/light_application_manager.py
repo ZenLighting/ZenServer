@@ -14,6 +14,7 @@ class LightApplicationManager(RevisedObserver):
     
     def trigger(self, observable, event, data):
         if event == LightApplicationEvents.FINISHED:
+            print("Application", id(observable), "has finished")
             self._running_applications.pop(id(observable))
     
     def start_application(

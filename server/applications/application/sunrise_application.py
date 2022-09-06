@@ -41,12 +41,12 @@ class SunriseApplication(LightApplicationTemplate):
         self.actual_color[1] += self.color_iterative[1]
         self.actual_color[2] += self.color_iterative[2]
         self.grid.set_grid_color(int(self.actual_color[0]), int(self.actual_color[1]), int(self.actual_color[2]))
-        if self.args.blink_after is False:
-            self.stop()
-            return
         
-        if self.actual_color == self.end_color:
+        if [int(self.actual_color[0]), int(self.actual_color[1]), int(self.actual_color[2])] == self.end_color:
             self.state = "BLINK"
+            if self.args.blink_after is False:
+                self.stop()
+                return
     
     def state_blink(self):
         if self.blink_state_information.last_time is None or datetime.datetime.now() - self.blink_state_information.last_time > datetime.timedelta(seconds=10):
@@ -61,13 +61,19 @@ class SunriseApplication(LightApplicationTemplate):
 
         
     def tick(self):
+        print("Ticking")
+        print("SUNRISE", self._stop, self._pause)
         if self.state == "START":
+            print("START")
             self.state_start()
         elif self.state == "SUNRISE":
+            print("SUNRISE")
             self.state_sunrise()
         elif self.state == "BLINK":
+            print("BLINK")
             self.state_blink()
         time.sleep(1/30)
+        print("SUNRISE", self._stop, self._pause)
 
 class SunriseApplicationFactory(LightApplicationBuilder):
     def __call__(self, grid_object: LightGrid, args) -> SunriseApplication:

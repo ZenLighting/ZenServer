@@ -12,7 +12,7 @@ fd.bind(("", 1261))
 def broadcast_thread():
     while True:
         fd.sendto(json.dumps({
-            "name": "test-ring-light",
+            "name": "test-grid-light",
             "strip": {
                 "length": 3
             },
@@ -20,7 +20,7 @@ def broadcast_thread():
                 "protocols": [0, 1, 2]
             }
         }).encode("utf-8"),
-        ("255.255.255.255",1260))
+        ("localhost",1260))
         time.sleep(1)
 
 def recv_thread():
