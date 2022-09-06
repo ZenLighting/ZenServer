@@ -37,7 +37,7 @@ def build_application_route(
 
     @application_blueprint.route("/<application_name>/start", methods=["POST"])
     def start_application(application_name: str):
-        body = StartApplicationRequest.parse_obj(request.json)
+        body = request.json
         grid_type = body.grid_type
         room_or_light_id = body.grid_id
         if grid_type == "room":
