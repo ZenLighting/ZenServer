@@ -61,19 +61,19 @@ class SunriseApplication(LightApplicationTemplate):
 
         
     def tick(self):
-        print("Ticking")
-        print("SUNRISE", self._stop, self._pause)
+        #print("Ticking")
+        #print("SUNRISE", self._stop, self._pause)
         if self.state == "START":
-            print("START")
+            #print("START")
             self.state_start()
         elif self.state == "SUNRISE":
-            print("SUNRISE")
+            #print("SUNRISE")
             self.state_sunrise()
         elif self.state == "BLINK":
-            print("BLINK")
+            #print("BLINK")
             self.state_blink()
         time.sleep(1/30)
-        print("SUNRISE", self._stop, self._pause)
+        #print("SUNRISE", self._stop, self._pause)
 
 class SunriseApplicationFactory(LightApplicationBuilder):
     def __call__(self, grid_object: LightGrid, args) -> SunriseApplication:
