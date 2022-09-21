@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, request
+from flask import Blueprint, Flask, request, Response
 #from server.controllers.device_controller import DeviceController 
 from server.device.registry import DeviceRegistry
 from server.device.room_registry import RoomRegistry
@@ -47,6 +47,15 @@ def create_blueprint(registry: RoomRegistry, light_registry: DeviceRegistry):
         room_model = RoomModel.parse_obj(body)
         new_room = registry.add_room(room_model)
         return "OK"
+
+    @room_bp.route("/<room_name>", methods=["GET"])
+    def get_room(room_name):
+        for i in registry.rooms:
+            if i.model.name == room_name:
+                return {
+                    "room": i.json()
+                }
+        return Response("Room does not exist", status=404)
 
     @room_bp.route("/<room_name>", methods=["DELETE"])
     def delete_room(room_name):
